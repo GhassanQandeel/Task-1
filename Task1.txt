@@ -1,0 +1,64 @@
+int trigPin = 11;
+int potPin = A3;       
+int potValue = 0; 
+
+int echoPin = 10;
+
+int red = 2, green = 6, yellow = 4;
+
+void setup() {
+  Serial.begin(9600);
+  
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
+  pinMode(red, OUTPUT);
+  pinMode(yellow, OUTPUT);
+  pinMode(green, OUTPUT);
+}
+
+void loop() {
+  potValue = analogRead(potPin);  // Read potentiometer value (0-1023)
+  float duration, distance;
+  
+  // Trigger the ultrasonic sensor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);  // 10 microsecond pulse
+  digitalWrite(trigPin, LOW);
+
+  // Measure the time of echo signal
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculate the distance in centimeters
+  distance = (duration / 2) / 29.1;
+
+  // Adjust distance threshold based on potentiometer value (scaled down)
+  float offset = potValue / 51.15; // Scale potentiometer value to a range of 0-20
+  
+  // Display the distance in Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.print(" cm, Offset: ");
+  Serial.println(offset);
+  
+  // Determine which LED to light up
+  if(distance >= 0.0 + offset && distance <= 10.0 + offset) {
+    digitalWrite(red, HIGH);
+    digitalWrite(green, LOW);
+    digitalWrite(yellow, LOW);
+  }
+  else if(distance > 10.0 + offset && distance <= 20.0 + offset) {
+    digitalWrite(red, LOW);
+    digitalWrite(green, LOW);
+    digitalWrite(yellow, HIGH);
+  }
+  else if(distance > 20.0 + offset) {
+    digitalWrite(red, LOW);
+    digitalWrite(green, HIGH);
+    digitalWrite(yellow, LOW);
+  }
+  
+  delay(100);  // Small delay for stability
+}
